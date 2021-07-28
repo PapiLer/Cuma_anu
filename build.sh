@@ -128,8 +128,8 @@ COMMIT_HEAD=$(git log --oneline -1)
  clone() {
 	echo " "
 		msg "|| Cloning GCC 10 baremetal ||"
-		git clone --depth=1 https://github.com/mvaisakh/gcc-arm64 gcc64
-		git clone --depth=1 https://github.com/mvaisakh/gcc-arm gcc32
+		git clone --depth=1 https://github.com/Diaz1401/gcc10-arm64 gcc64
+		git clone --depth=1 https://github.com/Diaz1401/gcc10-arm gcc32
 		GCC64_DIR=$KERNEL_DIR/gcc64
 		GCC32_DIR=$KERNEL_DIR/gcc32
 
@@ -140,7 +140,7 @@ COMMIT_HEAD=$(git log --oneline -1)
 ##------------------------------------------------------##
 
 exports() {
-	export KBUILD_BUILD_USER="Kentang"
+	export KBUILD_BUILD_USER="KentanK"
 	export ARCH=arm64
 	export SUBARCH=arm64
 
@@ -224,10 +224,10 @@ build_kernel() {
 	msg "|| Started Compilation ||"
 	export CROSS_COMPILE_ARM32=$GCC32_DIR/bin/arm-eabi-
 	make -j O=out CROSS_COMPILE=aarch64-elf- \
-	READELF=llvm-readelf OBJSIZE=llvm-size \
-	OBJDUMP=llvm-objdump OBJCOPY=llvm-objcopy STRIP=llvm-strip \
-	NM=llvm-nm AS=llvm-as AR=llvm-ar \
-	HOSTAR=llvm-ar HOSTAS=llvm-as HOSTNM=llvm-nm \
+	READELF=aarch64-elf-readelf OBJSIZE=aarch64-elf--size \
+	OBJDUMP=aarch64-elf-objdump OBJCOPY=aarch64-elf-objcopy STRIP=aarch64-elf-strip \
+	NM=aarch64-elf-gcc-nm AS=aarch64-elf-as AR=aarch64-elf-gcc-ar \
+	HOSTAR=aarch64-elf-gcc-ar HOSTAS=aarch64-elf-as HOSTNM=aarch64-elf-gcc-nm \
 	LD=aarch64-elf-ld HOSTLD=aarch64-elf-ld
 
 		BUILD_END=$(date +"%s")
@@ -263,10 +263,10 @@ gen_zip() {
 		mv "$KERNEL_DIR"/out/arch/arm64/boot/dtbo.img AnyKernel3/dtbo.img
 	fi
 	cd AnyKernel3 || exit
-	zip -r9 $ZIPNAME-$DEVICE-R-"$DATE"-Rev"$DRONE_BUILD_NUMBER".zip * -x .git README.md LICENSE
+	zip -r9 $ZIPNAME-$DEVICE-R-"$DATE"-"$DRONE_BUILD_NUMBER".zip * -x .git README.md LICENSE
 
 	## Prepare a final zip variable
-	ZIP_FINAL="$ZIPNAME-$DEVICE-R-$DATE-Rev$DRONE_BUILD_NUMBER.zip"
+	ZIP_FINAL="$ZIPNAME-$DEVICE-R-$DATE-$DRONE_BUILD_NUMBER.zip"
 	if [ "$PTTG" = 1 ]
  	then
 		tg_post_build "$ZIP_FINAL" "$CHATID" "✅ Build took : $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
