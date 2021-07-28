@@ -39,14 +39,14 @@ KERNEL_DIR=$PWD
 ZIPNAME="Chuck.Kernel"
 
 # The name of the device for which the kernel is built
-MODEL="Redmi 8 Series"
+MODEL="Xiaomi Redmi SDM439 Series"
 
 # The codename of the device
-DEVICE="olives"
+DEVICE="MI439"
 
 # The defconfig which should be used. Get it from config.gz from
 # your device or check source
-DEFCONFIG=olive-perf_defconfig
+DEFCONFIG=mi439-perf_defconfig
 
 # Specify compiler. 
 # 'clang' or 'gcc'
