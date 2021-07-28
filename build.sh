@@ -223,7 +223,7 @@ build_kernel() {
 
 	msg "|| Started Compilation ||"
 	export CROSS_COMPILE_ARM32=$GCC32_DIR/bin/arm-eabi-
-	make -j O=out CROSS_COMPILE=aarch64-elf- \
+	make -j"$PROCS" O=out CROSS_COMPILE=aarch64-elf- \
 	READELF=aarch64-elf-readelf OBJSIZE=aarch64-elf--size \
 	OBJDUMP=aarch64-elf-objdump OBJCOPY=aarch64-elf-objcopy STRIP=aarch64-elf-strip \
 	NM=aarch64-elf-gcc-nm AS=aarch64-elf-as AR=aarch64-elf-gcc-ar \
