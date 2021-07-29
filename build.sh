@@ -90,7 +90,7 @@ LOG_DEBUG=0
 
 ## Set defaults first
 DISTRO=$(cat /etc/issue)
-KBUILD_BUILD_HOST=Chuck
+KBUILD_BUILD_HOST=KentanK
 CI_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 token=$TELEGRAM_TOKEN
 export KBUILD_BUILD_HOST CI_BRANCH
@@ -140,7 +140,7 @@ COMMIT_HEAD=$(git log --oneline -1)
 ##------------------------------------------------------##
 
 exports() {
-	export KBUILD_BUILD_USER="KentanK"
+	export KBUILD_BUILD_USER="Chuck"
 	export ARCH=arm64
 	export SUBARCH=arm64
 
