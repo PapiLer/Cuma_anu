@@ -228,7 +228,7 @@ build_kernel() {
 	OBJDUMP=aarch64-elf-objdump OBJCOPY=aarch64-elf-objcopy STRIP=aarch64-elf-strip \
 	NM=aarch64-elf-gcc-nm AS=aarch64-elf-as AR=aarch64-elf-gcc-ar \
 	HOSTAR=aarch64-elf-gcc-ar HOSTAS=aarch64-elf-as HOSTNM=aarch64-elf-gcc-nm \
-	LD=aarch64-elf-ld HOSTLD=aarch64-elf-ld
+#	LD=aarch64-elf-ld HOSTLD=aarch64-elf-ld
 
 		BUILD_END=$(date +"%s")
 		DIFF=$((BUILD_END - BUILD_START))
