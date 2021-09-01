@@ -35,14 +35,12 @@ err() {
 # The defult directory where the kernel should be placed
 KERNEL_DIR=$PWD
 
-# The name of the Kernel, to name the ZIP
-ZIPNAME="Chuck.Kernel"
-
-# The name of the device for which the kernel is built
-MODEL="Xiaomi Redmi SDM439 Series"
-
-# The codename of the device
-DEVICE="MI439"
+# Costumize
+KERNEL="[TEST]SiLonT"
+DEVICE="Mi439"
+KERNELNAME="${KERNEL}-${DEVICE}-$(date +%y%m%d-%H%M)"
+TEMPZIPNAME="${KERNELNAME}-unsigned.zip"
+ZIPNAME="${KERNELNAME}.zip"
 
 # The defconfig which should be used. Get it from config.gz from
 # your device or check source
@@ -56,11 +54,11 @@ COMPILER=gcc
 INCREMENTAL=1
 
 # Push ZIP to Telegram. 1 is YES | 0 is NO(default)
-PTTG=0
+PTTG=1
 	if [ $PTTG = 1 ]
 	then
 		# Set Telegram Chat ID
-		CHATID="-1001492198966"
+		CHATID="-1001429581761"
 	fi
 
 # Generate a full DEFCONFIG prior building. 1 is YES | 0 is NO(default)
@@ -72,7 +70,7 @@ BUILD_DTBO=1
 
 # Sign the zipfile
 # 1 is YES | 0 is NO
-SIGN=0
+SIGN=1
 
 # Silence the compilation
 # 1 is YES(default) | 0 is NO
@@ -90,7 +88,7 @@ LOG_DEBUG=0
 
 ## Set defaults first
 DISTRO=$(cat /etc/issue)
-KBUILD_BUILD_HOST=KentanK
+KBUILD_BUILD_HOST=GengKapak
 CI_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 token=$TELEGRAM_TOKEN
 export KBUILD_BUILD_HOST CI_BRANCH
@@ -107,7 +105,7 @@ then
 	if [ -n "$DRONE" ]
 	then
 		export KBUILD_BUILD_VERSION=$DRONE_BUILD_NUMBER
-		export KBUILD_BUILD_HOST=SlavSSH
+		export KBUILD_BUILD_HOST=GengKapak
 		export CI_BRANCH=$DRONE_BRANCH
 	else
 		echo "Not presetting Build Version"
@@ -128,8 +126,8 @@ COMMIT_HEAD=$(git log --oneline -1)
  clone() {
 	echo " "
 		msg "|| Cloning GCC 10 baremetal ||"
-		git clone --depth=1 https://github.com/Diaz1401/gcc10-arm64 gcc64
-		git clone --depth=1 https://github.com/Diaz1401/gcc10-arm gcc32
+		git clone --depth=1 -b arm64/11 https://github.com/silont-project/aarch64-elf-gcc gcc64
+		git clone --depth=1 -b arm/11 https://github.com/silont-project/arm-eabi-gcc gcc32
 		GCC64_DIR=$KERNEL_DIR/gcc64
 		GCC32_DIR=$KERNEL_DIR/gcc32
 
@@ -157,7 +155,7 @@ exports() {
 ##---------------------------------------------------------##
 
 tg_post_msg() {
-	curl -s -X POST "$BOT_MSG_URL" -d chat_id="-1001492198966" \
+	curl -s -X POST "$BOT_MSG_URL" -d chat_id="-1001429581761" \
 	-d "disable_web_page_preview=true" \
 	-d "parse_mode=html" \
 	-d text="$1"
@@ -189,7 +187,7 @@ build_kernel() {
 
 	if [ "$PTTG" = 1 ]
  	then
-		tg_post_msg "<b>🔨 $KBUILD_BUILD_VERSION CI Build Triggered</b>%0A<b>Kernel Version : </b><code>$KERVER</code>%0A<b>Date : </b><code>$(TZ=Asia/Jakarta date)</code>%0A<b>Compiler Used : </b><code>$KBUILD_COMPILER_STRING</code>%0a<b>Branch : </b><code>$CI_BRANCH</code>" "$CHATID"
+		tg_post_msg "<b>🔨 $KBUILD_BUILD_VERSION CI Build Triggered</b>%0A<b>Kernel Version : </b><code>$KERVER</code>%0A<b>Date : </b><code>$(TZ=Asia/Jakarta date)</code>%0A<b>Compiler Used : </b><code>$KBUILD_COMPILER_STRING</code>%0a<b>Branch : </b><code>$CI_BRANCH</code>%0A<b>Top Commit : </b><a href='$DRONE_COMMIT_LINK'>$COMMIT_HEAD</a>" "$CHATID"
 	fi
 
 	make O=out $DEFCONFIG
@@ -198,7 +196,6 @@ build_kernel() {
 		cp .config arch/arm64/configs/$DEFCONFIG
 		git add arch/arm64/configs/$DEFCONFIG
 		git commit -m "$DEFCONFIG: Regenerate
-
 						This is an auto-generated commit"
 	fi
 
@@ -223,12 +220,7 @@ build_kernel() {
 
 	msg "|| Started Compilation ||"
 	export CROSS_COMPILE_ARM32=$GCC32_DIR/bin/arm-eabi-
-	make -j"$PROCS" O=out CROSS_COMPILE=aarch64-elf- \
-	READELF=aarch64-elf-readelf OBJSIZE=aarch64-elf--size \
-	OBJDUMP=aarch64-elf-objdump OBJCOPY=aarch64-elf-objcopy STRIP=aarch64-elf-strip \
-	NM=aarch64-elf-gcc-nm AS=aarch64-elf-as AR=aarch64-elf-gcc-ar \
-	HOSTAR=aarch64-elf-gcc-ar HOSTAS=aarch64-elf-as HOSTNM=aarch64-elf-gcc-nm \
-#	LD=aarch64-elf-ld HOSTLD=aarch64-elf-ld
+	make -j"$PROCS" O=out CROSS_COMPILE=aarch64-elf-
 
 		BUILD_END=$(date +"%s")
 		DIFF=$((BUILD_END - BUILD_START))
@@ -239,7 +231,6 @@ build_kernel() {
 	    	if [ $BUILD_DTBO = 1 ]
 			then
 				msg "|| Building DTBO ||"
-				tg_post_msg "<code>Building DTBO..</code>" "$CHATID"
 				python2 "$KERNEL_DIR/scripts/ufdt/libufdt/utils/src/mkdtboimg.py" \
 					create "$KERNEL_DIR/out/arch/arm64/boot/dtbo.img" --page_size=4096 "$KERNEL_DIR/out/arch/arm64/boot/dts/qcom/atoll-idp-overlay.dtbo"
 			fi
@@ -263,13 +254,15 @@ gen_zip() {
 		mv "$KERNEL_DIR"/out/arch/arm64/boot/dtbo.img AnyKernel3/dtbo.img
 	fi
 	cd AnyKernel3 || exit
-	zip -r9 $ZIPNAME-$DEVICE-R-"$DATE"-"$DRONE_BUILD_NUMBER".zip * -x .git README.md LICENSE
+	zip -r9 "${TEMPZIPNAME}" ./*
 
-	## Prepare a final zip variable
-	ZIP_FINAL="$ZIPNAME-$DEVICE-R-$DATE-$DRONE_BUILD_NUMBER.zip"
+	# Sign the zip before sending it to Telegram
+	curl -sLo zipsigner-4.0.jar https://raw.githubusercontent.com/baalajimaestro/AnyKernel3/master/zipsigner-4.0.jar
+	java -jar zipsigner-4.0.jar "${TEMPZIPNAME}" "${ZIPNAME}"
+
 	if [ "$PTTG" = 1 ]
  	then
-		tg_post_build "$ZIP_FINAL" "$CHATID" "✅ Build took : $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
+		tg_post_build "$ZIPNAME" "$CHATID" "✅ Build took : $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
 	fi
 	cd ..
 }
