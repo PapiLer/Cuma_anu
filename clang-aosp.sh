@@ -126,11 +126,10 @@ DATE=$(TZ=Asia/Jakarta date +%y%m%d-%H%M)
  clone() {
 	echo " "
 	msg "|| Cloning Clang ||"
-	git clone --depth=1 https://github.com/pjorektneira/aosp-clang.git clang-llvm --no-tags --single-branch
-	msg "|| Cloning ARM64 GCC ||"
-	git clone --depth=1 https://github.com/silont-project/aarch64-silont-linux-gnu.git -b arm64/11 gcc64 --no-tags --single-branch
-	msg "|| Cloning ARM GCC ||"
-	git clone --depth=1 https://github.com/silont-project/arm-silont-linux-gnueabi -b arm/11 gcc32 --no-tags --single-branch
+	git clone --depth=1 https://github.com/pjorektneira/aosp-clang.git -b google clang-llvm --no-tags --single-branch
+	msg "|| Cloning binutils ||"
+	git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 --depth=1 --single-branch --branch="lineage-19.0" gcc64
+	git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9 --depth=1 --single-branch --branch="lineage-19.0" gcc32
 		# Toolchain Directory defaults to clang-llvm
 	TC_DIR=$KERNEL_DIR/clang-llvm
 	GCC64_DIR=$KERNEL_DIR/gcc64
@@ -149,10 +148,8 @@ exports() {
 	export token=$TELEGRAM_TOKEN
 
 		KBUILD_COMPILER_STRING=$("$TC_DIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
-		PATH=$TC_DIR/bin/:$PATH
+		PATH=$TC_DIR/bin/:$GCC64_DIR/bin/:$GCC32_DIR/bin/:$PATH
 		export LD_LIBRARY_PATH=$TC_DIR/lib64:$LD_LIBRARY_PATH
-		export CROSS_COMPILE=$GCC64_DIR/bin/aarch64-silont-linux-gnu-
-		export CROSS_COMPILE_ARM32=$GCC32_DIR/bin/arm-silont-linux-gnueabi-
 		
 
 	export PATH KBUILD_COMPILER_STRING 
@@ -218,7 +215,7 @@ build_kernel() {
 	fi
 
 	msg "|| Started Compilation ||"
-	make -j"$PROCS" O=out CC=clang AR=llvm-ar OBJDUMP=llvm-objdump STRIP=llvm-strip OBJCOPY=llvm-objcopy CLANG_TRIPLE=aarch64-silont-linux-gnu-
+	make -j"$PROCS" O=out CC=clang AR=llvm-ar OBJDUMP=llvm-objdump STRIP=llvm-strip OBJCOPY=llvm-objcopy CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi-
 		BUILD_END=$(date +"%s")
 		DIFF=$((BUILD_END - BUILD_START))
 
