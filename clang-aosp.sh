@@ -46,7 +46,7 @@ DEVICE="Mi439"
 
 # The defconfig which should be used. Get it from config.gz from
 # your device or check source
-DEFCONFIG=mi439-perf_defconfig
+DEFCONFIG=silont-mi439_defconfig
 
 # Specify compiler. 
 # 'clang' or 'gcc'
@@ -126,7 +126,7 @@ DATE=$(TZ=Asia/Jakarta date +%y%m%d-%H%M)
  clone() {
 	echo " "
 	msg "|| Cloning Clang ||"
-	git clone --depth=1 https://github.com/pjorektneira/aosp-clang.git -b google clang-llvm --no-tags --single-branch
+	git clone --depth=1 https://gitlab.com/reinazhard/aosp-clang clang-llvm --no-tags --single-branch
 	msg "|| Cloning binutils ||"
 	git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 --depth=1 --single-branch --branch="lineage-19.0" gcc64
 	git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9 --depth=1 --single-branch --branch="lineage-19.0" gcc32
