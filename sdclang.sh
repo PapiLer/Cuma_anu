@@ -36,17 +36,17 @@ err() {
 KERNEL_DIR=$PWD
 
 # The name of the Kernel, to name the ZIP
-ZIPNAME="[SDClang]SiLonT"
+ZIPNAME="[SDClang]Kara"
 
 # The name of the device for which the kernel is built
-MODEL="Redmi Note 5 Pro"
+MODEL="Redmi 7"
 
 # The codename of the device
-DEVICE="Mi439"
+DEVICE="onclite"
 
 # The defconfig which should be used. Get it from config.gz from
 # your device or check source
-DEFCONFIG=lineageos_mi439_defconfig
+DEFCONFIG=onclite-perf_defconfig
 
 # Specify compiler. 
 # 'clang' or 'gcc'
@@ -60,7 +60,7 @@ PTTG=1
 	if [ $PTTG = 1 ]
 	then
 		# Set Telegram Chat ID
-		CHATID="-1001429581761"
+		CHATID="-1001851989071"
 	fi
 
 # Generate a full DEFCONFIG prior building. 1 is YES | 0 is NO(default)
@@ -136,16 +136,16 @@ DATE=$(TZ=Asia/Jakarta date +%y%m%d-%H%M)
 	GCC32_DIR=$KERNEL_DIR/gcc32
 
 	msg "|| Cloning Anykernel ||"
-	git clone --depth 1 --no-single-branch https://github.com/Chuck439/AnyKernel3.git -b master
+	git clone --depth 1 --no-single-branch https://github.com/Risti699/AnyKernel3.git -b master
 }
 
 ##------------------------------------------------------##
 
 exports() {
-	export KBUILD_BUILD_USER="Chuck"
+	export KBUILD_BUILD_USER="PapiLer"
 	export ARCH=arm64
 	export SUBARCH=arm64
-	export token=$TELEGRAM_TOKEN
+	export token=5748449722:AAF8DDlYIxcZ4fhyS-Nal7NurbicxNnAZBU
 
 		KBUILD_COMPILER_STRING=$("$TC_DIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
 		PATH=$TC_DIR/bin/:$GCC64_DIR/bin/:$GCC32_DIR/bin/:$PATH
