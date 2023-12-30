@@ -145,7 +145,7 @@ exports() {
 	export KBUILD_BUILD_USER="PapiLer"
 	export ARCH=arm64
 	export SUBARCH=arm64
-	export token=$5748449722:AAF8DDlYIxcZ4fhyS-Nal7NurbicxNnAZBU
+	export token=5748449722:AAF8DDlYIxcZ4fhyS-Nal7NurbicxNnAZBU
 
 		KBUILD_COMPILER_STRING=$("$TC_DIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
 		PATH=$TC_DIR/bin/:$GCC64_DIR/bin/:$GCC32_DIR/bin/:$PATH
