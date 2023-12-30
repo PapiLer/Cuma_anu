@@ -6,7 +6,7 @@ deps() {
     if [ ! -d "clang" ]; then
         git clone -q --depth=1 --single-branch https://github.com/kdrag0n/proton-clang
         KBUILD_COMPILER_STRING="proton-clang"
-        PATH="${PWD}/clang/bin:${PATH}"
+        PATH="${PWD}/proton-clang/bin:${PATH}"
     fi
     sudo apt install -y ccache
     echo "Done"
@@ -111,12 +111,13 @@ compile() {
         rm -rf out && mkdir -p out
     fi
 
-    make O=out ARCH="${ARCH}" "${DEFCONFIG}"
-    make -j"${PROCS}" O=out \
-        ARCH=$ARCH \
-        CC="clang" \
-        LLVM=1 \
-        CONFIG_NO_ERROR_ON_MISMATCH=y
+    make -j$(nproc --all) O=out \
+                      ARCH=${ARCH}\
+                      CC="ccache clang" \
+	                CLANG_TRIPLE="aarch64-linux-gnu-" \
+	                CROSS_COMPILE="aarch64-linux-gnu-" \
+	                CROSS_COMPILE_ARM32="arm-linux-gnueabi-" \
+                        -j$(nproc --all)
 
     if ! [ -a "$IMAGE" ]; then
         finderr
